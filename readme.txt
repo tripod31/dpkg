@@ -1,4 +1,5 @@
 ＜dpkg＞
+dpkgの出力を見るためのPHPアプリケーション
 
 ■動作確認環境
 ・debian wheezy
