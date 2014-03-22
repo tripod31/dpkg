@@ -24,9 +24,7 @@ apt-show-versions
 
 ■設定
 ・apacheからファイル・ディレクトリの書き込み権を設定
-$cd dpkg
-$sudo chgrp www-data . templates_c dpkg.db
-$chmod g+w . templates_c dpkg.db
+$sudo ./setup.sh
 
 ■使い方
 ・「現在の状態を更新」ボタン
