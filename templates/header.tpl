@@ -5,6 +5,7 @@
 <TITLE>dpkg</TITLE>
 </HEAD>
 <BODY>
+<TABLE border=1><TR><TD>
 <FORM method=POST>
 <INPUT type="submit" name="current" value="現在">
 <INPUT type="submit" name="org" value="オリジナル">
@@ -22,3 +23,5 @@
 {if $msg != ""}
 {$msg}<BR>
 {/if}
+</FORM>
+</TABLE></TR></TD>

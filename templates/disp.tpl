@@ -1,8 +1,11 @@
 {include file="header.tpl"}
-{$q_type}:{$row_count}<BR>
+<FORM method=POST>
+<TABLE border=1><TR><TD>
 <TEXTAREA name="sql" cols=100 rows=10>{$sql}</TEXTAREA><BR>
 <INPUT type="submit" name="query" value="クエリー">
+</TD></TR></TABLE>
 </FORM>
+{$q_type}:{$row_count}<BR>
 <TABLE border=1 width="100%">
 <TR bgcolor=gray>
 

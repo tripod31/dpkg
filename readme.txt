@@ -1,7 +1,8 @@
 ＜dpkg＞
 
 ■動作確認環境
-・ubuntu11.10server
+・debian wheezy
+・virtualbox4.3.6
 ・apahce2
 ・php5
 ・smarty3
@@ -24,16 +25,14 @@ apt-show-versions
 ■設定
 ・apacheからファイル・ディレクトリの書き込み権を設定
 $cd dpkg
-$sudo chgrp www-data .
-$sudo chgrp www-data templates_c
-$sudo chgrp www-data dpkg.db
-$chmod g+w dpkg.db
+$sudo chgrp www-data . templates_c dpkg.db
+$chmod g+w . templates_c dpkg.db
 
 ■使い方
 ・「現在の状態を更新」ボタン
     現在のインストール状況を更新します
 ・「現在の状態をオリジナルの状態にする」ボタン
-    ./installed_org.txtからオリジナルのインストール状況を更新します。
+    オリジナルのインストール状況を現在の状態にします
 
 ■トラブルシューティング
 ・smarty3のエラーが出る場合
