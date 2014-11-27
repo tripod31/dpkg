@@ -14,3 +14,9 @@ CREATE TABLE versions (
     name text NOT NULL,
     repo text NOT NULL
 );
+CREATE TABLE info (
+    name text NOT NULL,
+    info text NOT NULL
+);
+INSERT INTO info VALUES('saved_time_cur','');
+INSERT INTO info VALUES('saved_time_org','');

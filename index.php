@@ -155,6 +155,12 @@
             }
         }
         pclose($pp);
+        
+        #読み取り時刻
+        $sql=sprintf("UPDATE info SET info='%s' WHERE name='saved_time_cur'",date( "Y/m/d H:i:s", time()));
+        if( $conn->exec($sql)===FALSE)
+        	throw new Exception(getErrorMsg($conn));
+        
         if($conn->commit()===FALSE)
             throw new Exception(getErrorMsg($conn));
     }
@@ -176,6 +182,12 @@
             throw new Exception("./installed_org.txtを開くのにエラー");
         */
         read_dpkg($conn,$pp,'installed_org');
+        
+        #読み取り時刻
+        $sql=sprintf("UPDATE info SET info='%s' WHERE name='saved_time_org'",date( "Y/m/d H:i:s", time()));
+        if( $conn->exec($sql)===FALSE)
+        	throw new Exception(getErrorMsg($conn));
+        
         if ($conn->commit()===FALSE)
             throw new Exception(getErrorMsg($conn));
     }
@@ -354,6 +366,8 @@
             }
             array_push($rows,$cols);
         }
+        
+		get_saved_time($conn,$smarty);
         $conn=null;
         
         #表示
@@ -386,5 +400,27 @@
         
         $smarty->display("disp.tpl");
     }
+    
+    function get_saved_time($conn,$smarty){
+	    $saved_time_org="";
+	    $saved_time_cur="";
+	    $st = $conn->query("SELECT info FROM info WHERE name='saved_time_org'");
+	    if ($st!=null){
+	    	$row = $st->fetch(PDO::FETCH_ASSOC);	    	
+	    	if ($row!=null){
+	    		$saved_time_org=$row['info'];
+	    	}
+	    }
+	    
+	    $st = $conn->query("SELECT info FROM info WHERE name='saved_time_cur'");
+	    if ($st!=null){
+	    	$row = $st->fetch(PDO::FETCH_ASSOC);	    	
+	    	if ($row!=null){
+	    		$saved_time_cur=$row['info'];
+	    	}
 
+	    }
+	    $smarty->assign("saved_time_org",$saved_time_org);	    
+	    $smarty->assign("saved_time_cur",$saved_time_cur);
+    }
 ?>

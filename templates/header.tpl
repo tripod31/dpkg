@@ -5,6 +5,8 @@
 <TITLE>dpkg</TITLE>
 </HEAD>
 <BODY>
+現在:{$saved_time_cur}<br>
+オリジナル:{$saved_time_org}<br>
 <TABLE border=1><TR><TD>
 <FORM method=POST>
 <INPUT type="submit" name="current" value="現在">
