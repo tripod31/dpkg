@@ -16,13 +16,6 @@ smarty3
 php5-sqlite
 apt-show-versions
 
-■設定ファイル
-/etc/apache2/mods-enabled/php5.conf
-    phpのハンドラを有効にする
-    <FilesMatch "\.ph(p3?|tml)$">
-    ↓
-    <FilesMatch "\.ph(p3?|tml|p)$">
-
 ■設定
 ・apacheからファイル・ディレクトリの書き込み権を設定
 $sudo ./setup.sh
