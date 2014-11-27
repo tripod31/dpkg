@@ -9,12 +9,20 @@ dpkgの出力を見るためのPHPアプリケーション
 ・smarty3
 ・sqlite3
 
-■追加インストールパッケージ
+■必要パッケージ
+以下を追加でインストールしました
 apache2
 php5
 smarty3
 php5-sqlite
 apt-show-versions
+
+■設定ファイル
+/etc/apache2/mods-enabled/php5.conf
+    phpのハンドラを有効にする
+    <FilesMatch "\.ph(p3?|tml)$">
+    ↓
+    <FilesMatch "\.ph(p3?|tml|p)$">
 
 ■設定
 ・apacheからファイル・ディレクトリの書き込み権を設定
