@@ -6,11 +6,14 @@
 </HEAD>
 <BODY>
 <TABLE border=0>
+</TABLE>
+<TABLE border=1>
+<TR><TD>
+<FORM method=POST>
+<TABLE border=0>
 <TR><TD>現在:</TD><TD>{$saved_time_cur}</TD></TR>
 <TR><TD>オリジナル:</TD><TD>{$saved_time_org}</TD></TR>
 </TABLE>
-<TABLE border=1><TR><TD>
-<FORM method=POST>
 <INPUT type="submit" name="current" value="現在">
 <INPUT type="submit" name="org" value="オリジナル">
 <INPUT type="submit" name="common" value="共通">
@@ -28,4 +31,5 @@
 {$msg}<BR>
 {/if}
 </FORM>
-</TABLE></TR></TD>
+</TD></TR>
+</TABLE>

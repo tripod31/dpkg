@@ -25,8 +25,10 @@ apt-show-versions
     <FilesMatch "\.ph(p3?|tml|p)$">
 
 ■設定
+・DB作成
+$sh create_db.sh
 ・apacheからファイル・ディレクトリの書き込み権を設定
-$sudo ./setup.sh
+$sudo sh setup.sh
 
 ■使い方
 ・「現在の状態を更新」ボタン
