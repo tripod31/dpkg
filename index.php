@@ -1,5 +1,5 @@
 <?php
-  	 include 'common.php';  		
+       include 'common.php';          
 
     require('smarty3/Smarty.class.php');
     require('sqlbuilder.php');
@@ -112,7 +112,7 @@
     disp($q_type,$smarty,$msg,$q_name,$hide_lib,$hide_rc);
     
     function getErrorMsg($conn) {
-	$err = $conn->errorInfo();
+    $err = $conn->errorInfo();
         return $err[2];
     }
     
@@ -271,7 +271,7 @@
             array_push($rows,$cols);
         }
         
-		get_saved_time($conn,$smarty);
+        get_saved_time($conn,$smarty);
         $conn=null;
         
         #表示
@@ -306,25 +306,25 @@
     }
     
     function get_saved_time($conn,$smarty){
-	    $saved_time_org="";
-	    $saved_time_cur="";
-	    $st = $conn->query("SELECT info FROM info WHERE name='saved_time_org'");
-	    if ($st!=null){
-	    	$row = $st->fetch(PDO::FETCH_ASSOC);	    	
-	    	if ($row!=null){
-	    		$saved_time_org=$row['info'];
-	    	}
-	    }
-	    
-	    $st = $conn->query("SELECT info FROM info WHERE name='saved_time_cur'");
-	    if ($st!=null){
-	    	$row = $st->fetch(PDO::FETCH_ASSOC);	    	
-	    	if ($row!=null){
-	    		$saved_time_cur=$row['info'];
-	    	}
+        $saved_time_org="";
+        $saved_time_cur="";
+        $st = $conn->query("SELECT info FROM info WHERE name='saved_time_org'");
+        if ($st!=null){
+            $row = $st->fetch(PDO::FETCH_ASSOC);            
+            if ($row!=null){
+                $saved_time_org=$row['info'];
+            }
+        }
+        
+        $st = $conn->query("SELECT info FROM info WHERE name='saved_time_cur'");
+        if ($st!=null){
+            $row = $st->fetch(PDO::FETCH_ASSOC);            
+            if ($row!=null){
+                $saved_time_cur=$row['info'];
+            }
 
-	    }
-	    $smarty->assign("saved_time_org",$saved_time_org);	    
-	    $smarty->assign("saved_time_cur",$saved_time_cur);
+        }
+        $smarty->assign("saved_time_org",$saved_time_org);        
+        $smarty->assign("saved_time_cur",$saved_time_cur);
     }
 ?>
