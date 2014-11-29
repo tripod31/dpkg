@@ -10,10 +10,6 @@ CREATE TABLE installed_org (
   version text NOT NULL,
   description text NOT NULL
 ) ;
-CREATE TABLE versions (
-    name text NOT NULL,
-    repo text NOT NULL
-);
 CREATE TABLE info (
     name text NOT NULL,
     info text NOT NULL

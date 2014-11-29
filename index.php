@@ -1,8 +1,7 @@
 <?php
-  	 include 'common.php';  		
-
-    require('smarty3/Smarty.class.php');
-    require('sqlbuilder.php');
+    require_once 'common.php';          
+    require_once('smarty3/Smarty.class.php');
+    require_once('sqlbuilder.php');
     
     #smarty
     $smarty = new Smarty;
@@ -22,7 +21,7 @@
     //print_r($_COOKIE);
     //print_r($_SESSION);
     
-    #$q_type
+    #$q_typeで動作と表示方法を分岐する
     $q_type = "current";
     if (array_key_exists("query",$_POST)){
         $q_type="user";
@@ -54,8 +53,10 @@
     if (array_key_exists("ref_org",$_POST)){
         $q_type="ref_org";
     }
-    
-    #$q_name
+    if (array_key_exists("upload_org",$_POST)){
+        $q_type="upload_org";
+    }    
+    #$q_name：絞り込み用パッケージ名
     if (array_key_exists("q_name",$_POST)) {
         $q_name = $_POST['q_name'];
     } else {
@@ -70,7 +71,7 @@
     #$hide_lib
     if (!array_key_exists("hide_lib",$_SESSION)) {
         #セッションがない場合
-        $hide_lib = false;
+        $hide_lib = true;
     } else {
         $hide_lib = array_key_exists("hide_lib",$_POST)? true:false;
     }
@@ -79,7 +80,7 @@
     #$hide_rc
     if (!array_key_exists("hide_rc",$_SESSION)) {
         #セッションがない場合
-        $hide_rc = false;
+        $hide_rc = true;
     } else {
         $hide_rc = array_key_exists("hide_rc",$_POST)? true:false;
     }
@@ -89,7 +90,8 @@
     switch ($q_type){
         case "ref_cur":
             try {
-                imp_installed();
+                $oImp = create_import();
+                $oImp->imp_installed();
                 $msg= "現在のデータを更新しました。";
             } catch (Exception $e) {
                 $msg= "現在のデータの更新に失敗しました。\n".$e->getMessage();
@@ -99,12 +101,27 @@
 
         case "ref_org":
             try {
-                imp_installed_org();
+                $oImp = create_import();
+                $oImp->imp_installed_org();
                 $msg="現在の状態でオリジナルを置き換えました。";
             } catch (Exception $e){
                 $msg= "オリジナルのデータの更新に失敗しました。\n".$e->getMessage();
             }
             break;
+        case "upload_org":
+            if (is_uploaded_file($_FILES["dpkg"]["tmp_name"])){
+                try {
+                    $fp = fopen($_FILES["dpkg"]["tmp_name"],"r");
+                    $oImp = create_import();
+                    $oImp->imp_installed_org($fp);
+                    $msg="オリジナルを置き換えました。";
+                } catch (Exception $e){
+                    $msg= "オリジナルのデータの更新に失敗しました。\n".$e->getMessage();
+                }
+            }else{
+                $msg="ファイルを選択してください";
+            }
+            break;        
         default:
 
     }
@@ -112,31 +129,8 @@
     disp($q_type,$smarty,$msg,$q_name,$hide_lib,$hide_rc);
     
     function getErrorMsg($conn) {
-	$err = $conn->errorInfo();
+    $err = $conn->errorInfo();
         return $err[2];
-    }
-    
-    function imp_installed_org(){
-        $conn=new PDO(DBFILE,null,null);
-        if ($conn->beginTransaction()===FALSE)
-            throw new Exception(getErrorMsg($conn));
-        if ($conn->exec("DELETE from installed_org")===FALSE)
-            throw new Exception(getErrorMsg($conn));
-        if (!file_exists("/usr/bin/dpkg"))
-            throw new Exception("/usr/bin/dpkgがない");
-        $pp = popen("dpkg -l","r");
-        if ($pp === FALSE)
-            throw new Exception("dpkg -lでエラー");
-
-        read_dpkg($conn,$pp,'installed_org');
-        
-        #読み取り時刻
-        $sql=sprintf("UPDATE info SET info='%s' WHERE name='saved_time_org'",date( "Y/m/d H:i:s", time()));
-        if( $conn->exec($sql)===FALSE)
-        	throw new Exception(getErrorMsg($conn));
-        
-        if ($conn->commit()===FALSE)
-            throw new Exception(getErrorMsg($conn));
     }
     
     function disp($q_type,$smarty,$msg,$q_name,$hide_lib,$hide_rc){
@@ -153,11 +147,12 @@
                 break;
             case "current":
             case "ref_cur":
-                $osql->base_sql="SELECT status,installed.name as name,repo,version,description FROM installed LEFT join versions ON installed.name = versions.name";
+                $osql->base_sql="SELECT status,installed.name as name,version,description FROM installed";
                 $osql->order_by="installed.name";
                 break;
             case "org":
             case "ref_org":
+            case "upload_org":
                 $osql->base_sql="SELECT * FROM installed_org";
                 $osql->order_by="installed_org.name";
                 break;
@@ -294,7 +289,7 @@
             array_push($rows,$cols);
         }
         
-		get_saved_time($conn,$smarty);
+        get_saved_time($conn,$smarty);
         $conn=null;
         
         #表示
@@ -315,10 +310,11 @@
         }
         $smarty->assign("q_name",$q_name);
         
+        #$qnames：クエリ―種別の表示
         $q_names = array(
             "user" => "ユーザークエリー",
             "current" => "現在","ref_cur" => "現在",
-            "org"=>"オリジナル","ref_org"=>"オリジナル",
+            "org"=>"オリジナル","ref_org"=>"オリジナル","upload_org"=>"オリジナル",
             "common"=>"共通",
             "diff_cur"=>"差分：現在のみ",
             "diff_org"=>"差分：オリジナルのみ",            
@@ -329,25 +325,25 @@
     }
     
     function get_saved_time($conn,$smarty){
-	    $saved_time_org="";
-	    $saved_time_cur="";
-	    $st = $conn->query("SELECT info FROM info WHERE name='saved_time_org'");
-	    if ($st!=null){
-	    	$row = $st->fetch(PDO::FETCH_ASSOC);	    	
-	    	if ($row!=null){
-	    		$saved_time_org=$row['info'];
-	    	}
-	    }
-	    
-	    $st = $conn->query("SELECT info FROM info WHERE name='saved_time_cur'");
-	    if ($st!=null){
-	    	$row = $st->fetch(PDO::FETCH_ASSOC);	    	
-	    	if ($row!=null){
-	    		$saved_time_cur=$row['info'];
-	    	}
+        $saved_time_org="未読み込み";
+        $saved_time_cur="未読み込み";
+        $st = $conn->query("SELECT info FROM info WHERE name='saved_time_org'");
+        if ($st!=null){
+            $row = $st->fetch(PDO::FETCH_ASSOC);            
+            if ($row!=null){
+                $saved_time_org=$row['info'];
+            }
+        }
+        
+        $st = $conn->query("SELECT info FROM info WHERE name='saved_time_cur'");
+        if ($st!=null){
+            $row = $st->fetch(PDO::FETCH_ASSOC);            
+            if ($row!=null){
+                $saved_time_cur=$row['info'];
+            }
 
-	    }
-	    $smarty->assign("saved_time_org",$saved_time_org);	    
-	    $smarty->assign("saved_time_cur",$saved_time_cur);
+        }
+        $smarty->assign("saved_time_org",$saved_time_org);        
+        $smarty->assign("saved_time_cur",$saved_time_cur);
     }
 ?>

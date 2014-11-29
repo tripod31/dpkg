@@ -17,22 +17,26 @@ smarty3
 php5-sqlite
 apt-show-versions
 
-■設定ファイル
-/etc/apache2/mods-enabled/php5.conf
-    phpのハンドラを有効にする
-    <FilesMatch "\.ph(p3?|tml)$">
-    ↓
-    <FilesMatch "\.ph(p3?|tml|p)$">
-
 ■設定
-・DB作成/apacheからファイル・ディレクトリの書き込み権を設定
-$sudo sh setup.sh
+$sh setup.sh
+以下を行なっています
+・DB作成
+・apacheからファイル・ディレクトリの書き込み権を設定
 
 ■使い方
 ・「現在の状態を更新」ボタン
-    現在のインストール状況を更新します
+現在のインストール状況を更新します
+
 ・「現在の状態をオリジナルの状態にする」ボタン
-    オリジナルのインストール状況を現在の状態にします
+オリジナルのインストール状況を現在の状態にします
+
+・「アップロード」ボタン
+他のマシンで
+dpkg -l>dpkg.txt
+そのファイルから、オリジナルの状態を更新します
+
+・debファイルがあるディレクトリからオリジナルの状態を更新する
+$php imp_installed_org.php [debファイルがあるディレクトリ]
 
 ■トラブルシューティング
 ・smarty3のエラーが出る場合
