@@ -116,29 +116,6 @@
         return $err[2];
     }
     
-    function imp_installed_org(){
-        $conn=new PDO(DBFILE,null,null);
-        if ($conn->beginTransaction()===FALSE)
-            throw new Exception(getErrorMsg($conn));
-        if ($conn->exec("DELETE from installed_org")===FALSE)
-            throw new Exception(getErrorMsg($conn));
-        if (!file_exists("/usr/bin/dpkg"))
-            throw new Exception("/usr/bin/dpkgがない");
-        $pp = popen("dpkg -l","r");
-        if ($pp === FALSE)
-            throw new Exception("dpkg -lでエラー");
-
-        read_dpkg($conn,$pp,'installed_org');
-        
-        #読み取り時刻
-        $sql=sprintf("UPDATE info SET info='%s' WHERE name='saved_time_org'",date( "Y/m/d H:i:s", time()));
-        if( $conn->exec($sql)===FALSE)
-        	throw new Exception(getErrorMsg($conn));
-        
-        if ($conn->commit()===FALSE)
-            throw new Exception(getErrorMsg($conn));
-    }
-    
     function disp($q_type,$smarty,$msg,$q_name,$hide_lib,$hide_rc){
         #クエリ表示
         $conn=new PDO(DBFILE,null,null);
