@@ -8,7 +8,7 @@
     try {
      	$fp = fopen($argv[1],"r");   	
         imp_installed_org($fp);
-        $msg= "現在の状態でオリジナルを置き換えました。";
+        $msg= sprintf("%sからオリジナルを置き換えました。",$argv[1]);
     } catch (Exception $e) {
         $msg= "オリジナルのデータの更新に失敗しました。\n".$e->getMessage();
     }
