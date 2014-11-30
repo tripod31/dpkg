@@ -1,7 +1,7 @@
 <HTML>
 <HEAD>
 <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<link rel="stylesheet" href="./yoshi.css" type="text/css">
+<link rel="stylesheet" href="yoshi.css" type="text/css">
 <TITLE>dpkg</TITLE>
 </HEAD>
 <BODY>
