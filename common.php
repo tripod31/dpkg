@@ -49,19 +49,20 @@
             throw new Exception(getErrorMsg($conn));
     }
     
-    function imp_installed_org(){
+    function imp_installed_org($fp=null){
         $conn=new PDO(DBFILE,null,null);
         if ($conn->beginTransaction()===FALSE)
             throw new Exception(getErrorMsg($conn));
         if ($conn->exec("DELETE from installed_org")===FALSE)
             throw new Exception(getErrorMsg($conn));
-        if (!file_exists("/usr/bin/dpkg"))
-            throw new Exception("/usr/bin/dpkgがない");
-        $pp = popen("dpkg -l","r");
-        if ($pp === FALSE)
-            throw new Exception("dpkg -lでエラー");
-
-        read_dpkg($conn,$pp,'installed_org');
+        if ($fp==null){
+	        if (!file_exists("/usr/bin/dpkg"))
+	            throw new Exception("/usr/bin/dpkgがない");
+	        $fp = popen("dpkg -l","r");
+	        if ($fp === FALSE)
+	            throw new Exception("dpkg -lでエラー");
+        }
+        read_dpkg($conn,$fp,'installed_org');
         
         #読み取り時刻
         $sql=sprintf("UPDATE info SET info='%s' WHERE name='saved_time_org'",date( "Y/m/d H:i:s", time()));
