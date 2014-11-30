@@ -25,11 +25,17 @@ apt-show-versions
     <FilesMatch "\.ph(p3?|tml|p)$">
 
 ■設定
-$sudo sh setup.sh
+$sh setup.sh
 以下を行なっています
 ・DB作成
 ・apacheからファイル・ディレクトリの書き込み権を設定
 ・オリジナルのインストール状況を現在の状態にする
+
+■他のマシンの状態をオリジナルの状態にインポートしたい場合
+他のマシンで
+dpkg -l>dpkg.txt
+インポートしたいマシンで
+php import_installed_org.php dpkg.txt
 
 ■使い方
 ・「現在の状態を更新」ボタン
