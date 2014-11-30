@@ -306,8 +306,8 @@
     }
     
     function get_saved_time($conn,$smarty){
-        $saved_time_org="";
-        $saved_time_cur="";
+        $saved_time_org="未読み込み";
+        $saved_time_cur="未読み込み";
         $st = $conn->query("SELECT info FROM info WHERE name='saved_time_org'");
         if ($st!=null){
             $row = $st->fetch(PDO::FETCH_ASSOC);            
