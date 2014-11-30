@@ -1,5 +1,5 @@
 <?php
-       include 'common.php';          
+    include 'common.php';          
 
     require('smarty3/Smarty.class.php');
     require('sqlbuilder.php');
@@ -70,7 +70,7 @@
     #$hide_lib
     if (!array_key_exists("hide_lib",$_SESSION)) {
         #セッションがない場合
-        $hide_lib = false;
+        $hide_lib = true;
     } else {
         $hide_lib = array_key_exists("hide_lib",$_POST)? true:false;
     }
@@ -79,7 +79,7 @@
     #$hide_rc
     if (!array_key_exists("hide_rc",$_SESSION)) {
         #セッションがない場合
-        $hide_rc = false;
+        $hide_rc = true;
     } else {
         $hide_rc = array_key_exists("hide_rc",$_POST)? true:false;
     }
