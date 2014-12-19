@@ -56,11 +56,11 @@
         if ($conn->exec("DELETE from installed_org")===FALSE)
             throw new Exception(getErrorMsg($conn));
         if ($fp==null){
-	        if (!file_exists("/usr/bin/dpkg"))
-	            throw new Exception("/usr/bin/dpkgがない");
-	        $fp = popen("dpkg -l","r");
-	        if ($fp === FALSE)
-	            throw new Exception("dpkg -lでエラー");
+            if (!file_exists("/usr/bin/dpkg"))
+                throw new Exception("/usr/bin/dpkgがない");
+            $fp = popen("dpkg -l","r");
+            if ($fp === FALSE)
+                throw new Exception("dpkg -lでエラー");
         }
         read_dpkg($conn,$fp,'installed_org');
         
