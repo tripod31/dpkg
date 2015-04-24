@@ -1,7 +1,6 @@
 <?php
     include 'common.php';          
 
-    require('smarty3/Smarty.class.php');
     require('sqlbuilder.php');
     
     #smarty
@@ -130,7 +129,7 @@
                 break;
             case "current":
             case "ref_cur":
-                $osql->base_sql="SELECT status,installed.name as name,repo,version,description FROM installed LEFT join versions ON installed.name = versions.name";
+                $osql->base_sql="SELECT status,installed.name as name,version,description FROM installed";
                 $osql->order_by="installed.name";
                 break;
             case "org":

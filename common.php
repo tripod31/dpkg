@@ -17,7 +17,8 @@
             throw new Exception("dpkg -lでエラー");
         read_dpkg($conn,$pp,'installed');
         pclose($pp);
-    
+        
+        /*
         if (!file_exists("/usr/bin/apt-show-versions"))
             throw new Exception("/usr/bin/apt-show-versionsがない");
         $pp = popen("apt-show-versions","r");
@@ -39,7 +40,8 @@
             }
         }
         pclose($pp);
-    
+        */
+        
         #読み取り時刻
         $sql=sprintf("UPDATE info SET info='%s' WHERE name='saved_time_cur'",date( "Y/m/d H:i:s", time()));
             if( $conn->exec($sql)===FALSE)
