@@ -2,8 +2,8 @@
     define("DBFILE","sqlite:./dpkg.db");
     
     abstract class import {
-        abstract private function open_list_command();
-        abstract private function read_package($conn,$tbl,$line,$lno);
+        abstract protected function open_list_command();
+        abstract protected function read_package($conn,$tbl,$line,$lno);
         
         public function imp_installed(){
             $conn=new PDO(DBFILE,null,null);
@@ -11,7 +11,7 @@
                 throw new Exception(getErrorMsg($conn));
             if ($conn->exec("DELETE from installed")===FALSE)
                 throw new Exception(getErrorMsg($conn));
-            $pp = open_list_command();
+            $pp = $this->open_list_command();
             $this->read_packages($conn,$pp,'installed');
             pclose($pp);
     
@@ -31,7 +31,7 @@
             if ($conn->exec("DELETE from installed_org")===FALSE)
                 throw new Exception(getErrorMsg($conn));
             if ($fp==null){
-                $fp=open_list_command();
+                $fp=$this->open_list_command();
             }
             $this->read_packages($conn,$fp,'installed_org');
     
@@ -48,13 +48,13 @@
             $lno = 0;
             while ($line = fgets($fp)){
                 $lno++;
-                read_package($conn,$tbl,$line,$lno);
+                $this->read_package($conn,$tbl,$line,$lno);
             }
         }
     }
     
     class import_dpkg extends import{
-        private function open_list_command(){
+        protected function open_list_command(){
             if (!file_exists("/usr/bin/dpkg"))
                 throw new Exception("/usr/bin/dpkgがない");      
             $pp = popen("dpkg -l","r");
@@ -63,7 +63,7 @@
             return $pp;            
         }
         
-        private function read_package($conn,$tbl,$line,$lno){
+        protected function read_package($conn,$tbl,$line,$lno){
             if ($lno <= 5)
                 return; #ヘッダスキップ
             
@@ -80,7 +80,7 @@
      }
     
     class import_rpm extends import{
-        private function open_list_command(){
+        protected function open_list_command(){
             if (!file_exists("/bin/rpm")&&!file_exists("/usr/bin/rpm"))
                 throw new Exception("rpmがない");
             $pp = popen("rpm -qa","r");
@@ -89,7 +89,7 @@
             return $pp;        
         }
         
-        private function read_package($conn,$tbl,$package,$lno){
+        protected function read_package($conn,$tbl,$package,$lno){
             $fp = popen(" rpm --queryformat '%{NAME}__TAB__%{VERSION}__TAB__%{DESCRIPTION}' -q " . $package,"r");
             if ($fp === FALSE)
                 throw new Exception("rpm -qでエラー");
