@@ -1,7 +1,7 @@
 <?php
-    include 'common.php';          
+    require_once 'common.php';          
     require_once('smarty3/Smarty.class.php');
-    require('sqlbuilder.php');
+    require_once('sqlbuilder.php');
     
     #smarty
     $smarty = new Smarty;
