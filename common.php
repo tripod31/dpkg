@@ -126,8 +126,6 @@
             $lno = 0;
             while ($package = fgets($p_fp)){
                 $lno++;
-                #if ($package == "gpg-pubkey")
-                #    continue;
                 $fp = popen(" rpm --queryformat '%{NAME}__TAB__%{VERSION}__TAB__%{DESCRIPTION}' -q " . $package,"r");
                 if ($fp === FALSE)
                     throw new Exception("rpm -qでエラー");
