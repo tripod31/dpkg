@@ -88,7 +88,8 @@
     switch ($q_type){
         case "ref_cur":
             try {
-                imp_installed();
+                $oImp = create_import();
+                $oImp->imp_installed();
                 $msg= "現在のデータを更新しました。";
             } catch (Exception $e) {
                 $msg= "現在のデータの更新に失敗しました。\n".$e->getMessage();
@@ -98,7 +99,8 @@
 
         case "ref_org":
             try {
-                imp_installed_org();
+                $oImp = create_import();
+                $oImp->imp_installed_org();
                 $msg="現在の状態でオリジナルを置き換えました。";
             } catch (Exception $e){
                 $msg= "オリジナルのデータの更新に失敗しました。\n".$e->getMessage();
