@@ -1,6 +1,6 @@
 <?php
     include 'common.php';          
-
+    require_once('smarty3/Smarty.class.php');
     require('sqlbuilder.php');
     
     #smarty
