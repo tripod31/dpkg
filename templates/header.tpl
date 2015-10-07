@@ -23,7 +23,7 @@
 <INPUT type="submit" name="ref_cur" value="現在のデータを更新" onclick="return confirm('現在のデータを更新しますか？')">
 <INPUT type="submit" name="ref_org" value="現在の状態でオリジナルを置き換える" onclick="return confirm('現在の状態でオリジナルを置き換えますか？')">
 <BR><BR>
-パッケージ名<INPUT type="text" name="q_name" value={$q_name}>
+絞り込み：パッケージ名<INPUT type="text" name="q_name" value={$q_name}>
 <INPUT TYPE="button" value="クリア" onclick="document.all['q_name'].value=''">
 <INPUT type="checkbox" name="hide_lib" value="on" {$hide_lib}>lib*以外
 <INPUT type="checkbox" name="hide_rc" value="on" {$hide_rc}>status=rc以外<BR>
