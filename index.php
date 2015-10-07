@@ -21,7 +21,7 @@
     //print_r($_COOKIE);
     //print_r($_SESSION);
     
-    #$q_type
+    #$q_typeで動作と表示方法を分岐する
     $q_type = "current";
     if (array_key_exists("query",$_POST)){
         $q_type="user";
@@ -53,8 +53,10 @@
     if (array_key_exists("ref_org",$_POST)){
         $q_type="ref_org";
     }
-    
-    #$q_name
+    if (array_key_exists("upload_org",$_POST)){
+        $q_type="upload_org";
+    }    
+    #$q_name：絞り込み用パッケージ名
     if (array_key_exists("q_name",$_POST)) {
         $q_name = $_POST['q_name'];
     } else {
@@ -106,6 +108,20 @@
                 $msg= "オリジナルのデータの更新に失敗しました。\n".$e->getMessage();
             }
             break;
+        case "upload_org":
+            if (is_uploaded_file($_FILES["dpkg"]["tmp_name"])){
+                try {
+                    $fp = fopen($_FILES["dpkg"]["tmp_name"],"r");
+                    $oImp = create_import($fp);
+                    $oImp->imp_installed_org();
+                    $msg="オリジナルを置き換えました。";
+                } catch (Exception $e){
+                    $msg= "オリジナルのデータの更新に失敗しました。\n".$e->getMessage();
+                }
+            }else{
+                $msg="ファイルを選択してください";
+            }
+            break;        
         default:
 
     }
@@ -136,6 +152,7 @@
                 break;
             case "org":
             case "ref_org":
+            case "upload_org":
                 $osql->base_sql="SELECT * FROM installed_org";
                 $osql->order_by="installed_org.name";
                 break;
@@ -293,10 +310,11 @@
         }
         $smarty->assign("q_name",$q_name);
         
+        #$qnames：クエリ―種別の表示
         $q_names = array(
             "user" => "ユーザークエリー",
             "current" => "現在","ref_cur" => "現在",
-            "org"=>"オリジナル","ref_org"=>"オリジナル",
+            "org"=>"オリジナル","ref_org"=>"オリジナル","upload_org"=>"オリジナル",
             "common"=>"共通",
             "diff_cur"=>"差分：現在のみ",
             "diff_org"=>"差分：オリジナルのみ",            

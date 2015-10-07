@@ -5,8 +5,6 @@
 <TITLE>dpkg</TITLE>
 </HEAD>
 <BODY>
-<TABLE border=0>
-</TABLE>
 <TABLE border=1>
 <TR><TD>
 <FORM method=POST>
@@ -27,9 +25,13 @@
 <INPUT TYPE="button" value="クリア" onclick="document.all['q_name'].value=''">
 <INPUT type="checkbox" name="hide_lib" value="on" {$hide_lib}>lib*以外
 <INPUT type="checkbox" name="hide_rc" value="on" {$hide_rc}>status=rc以外<BR>
+</FORM>
+オリジナルのdpkg出力ファイルをアップロード：
+<form action="" method="post" enctype="multipart/form-data">
+    <input type="file" name="dpkg" />
+    <input type="submit" name="upload_org" value="アップロード"/>
+</form>
 {if $msg != ""}
 {$msg}<BR>
 {/if}
-</FORM>
 </TD></TR>
-

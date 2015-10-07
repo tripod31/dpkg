@@ -117,8 +117,10 @@
         $oImp = null;
         if (file_exists("/usr/bin/dpkg")){
             $oImp = new import_dpkg();
-        }else{
+        }elseif (file_exists("/usr/bin/rpm")){
             $oImp = new import_rpm();
+        }else{
+            throw new Exception("dpkgもrpmもありません");
         }
         return $oImp;
     }
