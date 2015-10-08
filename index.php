@@ -112,8 +112,8 @@
             if (is_uploaded_file($_FILES["dpkg"]["tmp_name"])){
                 try {
                     $fp = fopen($_FILES["dpkg"]["tmp_name"],"r");
-                    $oImp = create_import($fp);
-                    $oImp->imp_installed_org();
+                    $oImp = create_import();
+                    $oImp->imp_installed_org($fp);
                     $msg="オリジナルを置き換えました。";
                 } catch (Exception $e){
                     $msg= "オリジナルのデータの更新に失敗しました。\n".$e->getMessage();
