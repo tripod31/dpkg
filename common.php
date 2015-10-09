@@ -51,6 +51,10 @@
                 $this->read_package($conn,$tbl,$line,$lno);
             }
         }
+        
+        protected function getErrorMsg($conn){
+            return $conn->errorInfo()[2];
+        }
     }
     
     class import_dpkg extends import{
@@ -79,15 +83,17 @@
         }       
      }
     
-    class import_rpm extends import{
+    class import_deb extends import{
         private $deb_dir="";
         
         function __construct($deb_dir){
+            if (!file_exists($deb_dir))
+                throw new Exception($deb_dir."がありません");
             $this->deb_dir = $deb_dir;
         }
         
         protected function open_list_command(){
-            $command = sprintf("find %s -name *.deb -print",$deb_dir);
+            $command = sprintf("find %s -name *.deb -print",$this->deb_dir);
             $pp = popen($command,"r");
             if ($pp === FALSE)
                 throw new Exception("findでエラー");
@@ -95,7 +101,7 @@
         }
         
         protected function read_package($conn,$tbl,$package,$lno){
-            $fp = popen("dpkg -I" . $package,"r");
+            $fp = popen("dpkg -I " . $package,"r");
             if ($fp === FALSE)
                 throw new Exception("dpkg -Iでエラー");
             $all_line="";
@@ -105,12 +111,13 @@
                     $cols[$matches[1]]=$matches[2];
             }
             
-            if ($count($cols)==4){
+            if (count($cols)==4){
                 $sql = sprintf("INSERT INTO %s values('ii','%s','%s','%s %s')",
                         $tbl,$cols["Package"],$cols["Version"],$cols["Architecture"],$cols["Description"]);
                 #print_r ($sql);
-                if ( $conn->exec($sql)===FALSE)
-                    throw new Exception(getErrorMsg($conn));
+                if ( $conn->exec($sql)===FALSE){
+                    throw new Exception($this->getErrorMsg($conn));
+                }
             } else {
                 print "dpkg -I:フォーマットが変<BR>" . $package . "<BR>";
             }
