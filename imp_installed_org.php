@@ -1,15 +1,14 @@
 <?php
     require_once 'common.php';
     if (count($argv)<2){
-        print "dpkg -lの結果ファイルを指定してください\n";
+        print "debファイルがあるフォルダを指定してください\n";
         exit;
     }
 
-    try {
-        $fp = fopen($argv[1],"r");       
-        $oImp=create_import();
+    try {       
+        $oImp=new import_deb($argv[1]);
         $oImp->imp_installed_org($fp);
-        $msg= sprintf("%sからオリジナルを置き換えました。",$argv[1]);
+        $msg= sprintf("%s下のdebファイルからオリジナルを置き換えました。",$argv[1]);
     } catch (Exception $e) {
         $msg= "オリジナルのデータの更新に失敗しました。\n".$e->getMessage();
     }

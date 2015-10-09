@@ -80,15 +80,54 @@
      }
     
     class import_rpm extends import{
+        private $deb_dir="";
+        
+        function __construct($deb_dir){
+            $this->deb_dir = $deb_dir;
+        }
+        
+        protected function open_list_command(){
+            $command = sprintf("find %s -name *.deb -print",$deb_dir);
+            $pp = popen($command,"r");
+            if ($pp === FALSE)
+                throw new Exception("findでエラー");
+            return $pp;
+        }
+        
+        protected function read_package($conn,$tbl,$package,$lno){
+            $fp = popen("dpkg -I" . $package,"r");
+            if ($fp === FALSE)
+                throw new Exception("dpkg -Iでエラー");
+            $all_line="";
+            $cols = array();
+            while($line = fgets($fp)){
+                if( preg_match("/(Package|Version|Architecture|Description): (.+)$/",$line,$matches))
+                    $cols[$matches[1]]=$matches[2];
+            }
+            
+            if ($count($cols)==4){
+                $sql = sprintf("INSERT INTO %s values('ii','%s','%s','%s %s')",
+                        $tbl,$cols["Package"],$cols["Version"],$cols["Architecture"],$cols["Description"]);
+                #print_r ($sql);
+                if ( $conn->exec($sql)===FALSE)
+                    throw new Exception(getErrorMsg($conn));
+            } else {
+                print "dpkg -I:フォーマットが変<BR>" . $package . "<BR>";
+            }
+        }
+    }
+    
+    class import_rpm extends import{
+
         protected function open_list_command(){
             if (!file_exists("/bin/rpm")&&!file_exists("/usr/bin/rpm"))
                 throw new Exception("rpmがない");
             $pp = popen("rpm -qa","r");
             if ($pp === FALSE)
                 throw new Exception("rpm -qaでエラー");
-            return $pp;        
+            return $pp;
         }
-        
+    
         protected function read_package($conn,$tbl,$package,$lno){
             $fp = popen(" rpm --queryformat '%{NAME}__TAB__%{VERSION}__TAB__%{DESCRIPTION}' -q " . $package,"r");
             if ($fp === FALSE)
@@ -108,10 +147,10 @@
                 }
             } else {
                 print "rpm -q:フォーマットが変<BR>" . $all_line . "<BR>";
-            }            
-        }               
+            }
+        }
     }
-       
+           
     #ファクトリメソッド
     function create_import(){
         $oImp = null;
