@@ -8,9 +8,9 @@
         public function imp_installed(){
             $conn=new PDO(DBFILE,null,null);
             if ($conn->beginTransaction()===FALSE)
-                throw new Exception(getErrorMsg($conn));
+                throw new Exception($this->getErrorMsg($conn));
             if ($conn->exec("DELETE from installed")===FALSE)
-                throw new Exception(getErrorMsg($conn));
+                throw new Exception($this->getErrorMsg($conn));
             $pp = $this->open_list_command();
             $this->read_packages($conn,$pp,'installed');
             pclose($pp);
@@ -18,18 +18,18 @@
             #読み取り時刻
             $sql=sprintf("UPDATE info SET info='%s' WHERE name='saved_time_cur'",date( "Y/m/d H:i:s", time()));
             if( $conn->exec($sql)===FALSE)
-                throw new Exception(getErrorMsg($conn));
+                throw new Exception($this->getErrorMsg($conn));
     
             if($conn->commit()===FALSE)
-                throw new Exception(getErrorMsg($conn));
+                throw new Exception($this->getErrorMsg($conn));
         }
     
         public function imp_installed_org($fp=null){
             $conn=new PDO(DBFILE,null,null);
             if ($conn->beginTransaction()===FALSE)
-                throw new Exception(getErrorMsg($conn));
+                throw new Exception($this->getErrorMsg($conn));
             if ($conn->exec("DELETE from installed_org")===FALSE)
-                throw new Exception(getErrorMsg($conn));
+                throw new Exception($this->getErrorMsg($conn));
             if ($fp==null){
                 $fp=$this->open_list_command();
             }
@@ -38,10 +38,10 @@
             #読み取り時刻
             $sql=sprintf("UPDATE info SET info='%s' WHERE name='saved_time_org'",date( "Y/m/d H:i:s", time()));
             if( $conn->exec($sql)===FALSE)
-                throw new Exception(getErrorMsg($conn));
+                throw new Exception($this->getErrorMsg($conn));
     
             if ($conn->commit()===FALSE)
-                throw new Exception(getErrorMsg($conn));
+                throw new Exception($this->getErrorMsg($conn));
         }
                 
         private function read_packages($conn,$fp,$tbl){
@@ -54,7 +54,7 @@
         
         protected function getErrorMsg($conn){        
             $arr=$conn->errorInfo();
-            $msg = implode(" ",$arr);     
+            $msg = implode(":",$arr);     
             return $msg;
         }
     }
@@ -77,7 +77,7 @@
             if ($res){
                 $sql = sprintf("INSERT INTO %s values('%s','%s','%s','%s')",$tbl,$arr[1],$arr[2],$arr[3],str_replace("'","",$arr[4]));
                 if ( $conn->exec($sql)===FALSE)
-                    throw new Exception(getErrorMsg($conn));
+                    throw new Exception($this->getErrorMsg($conn));
             } else {
                 print "dpkg-l:フォーマットが変<BR>" . $line . "<BR>";
             }        
@@ -114,9 +114,10 @@
             
             if (count($cols)==4){
                 $sql = sprintf("INSERT INTO %s values('ii','%s','%s','%s %s')",
-                        $tbl,$cols["Package"],$cols["Version"],$cols["Architecture"],$cols["Description"]);
-                #print_r ($sql);
+                        $tbl,$cols["Package"],$cols["Version"],$cols["Architecture"],str_replace("'","",$cols["Description"]));
+
                 if ( $conn->exec($sql)===FALSE){
+                    print ($sql."\n");                   
                     throw new Exception($this->getErrorMsg($conn));
                 }
             } else {
@@ -151,7 +152,7 @@
                     $sql = sprintf("INSERT INTO %s values('%s','%s','%s','%s')",$tbl,'installed',$name,$arr[2],str_replace("'","",$arr[3]));
                     #print_r ($sql);
                     if ( $conn->exec($sql)===FALSE)
-                        throw new Exception(getErrorMsg($conn));
+                        throw new Exception($this->getErrorMsg($conn));
                 }
             } else {
                 print "rpm -q:フォーマットが変<BR>" . $all_line . "<BR>";
