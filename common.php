@@ -52,8 +52,10 @@
             }
         }
         
-        protected function getErrorMsg($conn){
-            return $conn->errorInfo()[2];
+        protected function getErrorMsg($conn){        
+            $arr=$conn->errorInfo();
+            $msg = implode(" ",$arr);     
+            return $msg;
         }
     }
     
@@ -74,7 +76,6 @@
             $res = preg_match("/(\S+)\s+(\S+)\s+(\S+)(.+)/",$line,$arr);
             if ($res){
                 $sql = sprintf("INSERT INTO %s values('%s','%s','%s','%s')",$tbl,$arr[1],$arr[2],$arr[3],str_replace("'","",$arr[4]));
-                #print_r ($sql);
                 if ( $conn->exec($sql)===FALSE)
                     throw new Exception(getErrorMsg($conn));
             } else {
