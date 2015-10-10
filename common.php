@@ -3,7 +3,7 @@
     
     abstract class import {
         abstract protected function open_list_command();
-        abstract protected function read_package($conn,$tbl,$line,$lno);
+        abstract protected function read_package($stmt,$tbl,$line,$lno);
         
         public function imp_installed(){
             $conn=new PDO(DBFILE,null,null);
@@ -43,15 +43,17 @@
             if ($conn->commit()===FALSE)
                 throw new Exception($this->getErrorMsg($conn));
         }
-                
-        private function read_packages($conn,$fp,$tbl){
+        
+        protected function read_packages($conn,$fp,$tbl){
             $lno = 0;
+            $stmt=$conn->prepare(sprintf("INSERT INTO %s values(:status,:name,:version,:desc)",$tbl));
+            if ( $stmt===FALSE)
+                throw new Exception("sql prepare err:".$this->getErrorMsg($conn));
             while ($line = fgets($fp)){
                 $lno++;
-                $this->read_package($conn,$tbl,$line,$lno);
+                $this->read_package($stmt,$tbl,$line,$lno);
             }
         }
-        
         protected function getErrorMsg($conn){        
             $arr=$conn->errorInfo();
             $msg = implode(":",$arr);     
@@ -68,19 +70,19 @@
                 throw new Exception("dpkg -lでエラー");
             return $pp;            
         }
-        
-        protected function read_package($conn,$tbl,$line,$lno){
+                
+        protected function read_package($stmt,$tbl,$line,$lno){
             if ($lno <= 5)
                 return; #ヘッダスキップ
             
             $res = preg_match("/(\S+)\s+(\S+)\s+(\S+)(.+)/",$line,$arr);
             if ($res){
-                $sql = sprintf("INSERT INTO %s values('%s','%s','%s','%s')",$tbl,$arr[1],$arr[2],$arr[3],str_replace("'","",$arr[4]));
-                if ( $conn->exec($sql)===FALSE)
+                $parm = array(':status' => $arr[1],':name'=>$arr[2],':version'=>$arr[3],':desc'=>str_replace("'","",$arr[4]));
+                if ( $stmt->execute($parm)===FALSE)
                     throw new Exception($this->getErrorMsg($conn));
             } else {
                 print "dpkg-l:フォーマットが変<BR>" . $line . "<BR>";
-            }        
+            }
         }       
      }
     
@@ -101,7 +103,7 @@
             return $pp;
         }
         
-        protected function read_package($conn,$tbl,$package,$lno){
+        protected function read_package($stmt,$tbl,$package,$lno){
             $fp = popen("dpkg -I " . $package,"r");
             if ($fp === FALSE)
                 throw new Exception("dpkg -Iでエラー");
@@ -113,13 +115,10 @@
             }
             
             if (count($cols)==4){
-                $sql = sprintf("INSERT INTO %s values('ii','%s','%s','%s %s')",
-                        $tbl,$cols["Package"],$cols["Version"],$cols["Architecture"],str_replace("'","",$cols["Description"]));
-
-                if ( $conn->exec($sql)===FALSE){
-                    print ($sql."\n");                   
-                    throw new Exception($this->getErrorMsg($conn));
-                }
+                $parm = array(
+                    'status'=>'ii',':name' => $cols["Package"],':version'=>$cols["Version"],':desc'=>$cols["Architecture"]." ".$cols["Description"]);
+                if ( $stmt->execute($parm)===FALSE)
+                    throw new Exception("sql exec err:".$this->getErrorMsg($conn));
             } else {
                 print "dpkg -I:フォーマットが変<BR>" . $package . "<BR>";
             }
@@ -136,8 +135,8 @@
                 throw new Exception("rpm -qaでエラー");
             return $pp;
         }
-    
-        protected function read_package($conn,$tbl,$package,$lno){
+                
+        protected function read_package($stmt,$tbl,$package,$lno){
             $fp = popen(" rpm --queryformat '%{NAME}__TAB__%{VERSION}__TAB__%{DESCRIPTION}' -q " . $package,"r");
             if ($fp === FALSE)
                 throw new Exception("rpm -qでエラー");
@@ -149,9 +148,8 @@
             if ($res){
                 $name =$arr[1];
                 if ($name !="gpg-pubkey"){
-                    $sql = sprintf("INSERT INTO %s values('%s','%s','%s','%s')",$tbl,'installed',$name,$arr[2],str_replace("'","",$arr[3]));
-                    #print_r ($sql);
-                    if ( $conn->exec($sql)===FALSE)
+                    $parm = array(':status'=>'installed',':name' => $name,':version'=>$arr[2],':desc'=>str_replace("'","",$arr[3]));
+                    if ( $stmt->execute($parm)===FALSE)
                         throw new Exception($this->getErrorMsg($conn));
                 }
             } else {
