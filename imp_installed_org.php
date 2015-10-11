@@ -1,16 +1,28 @@
 <?php
     require_once 'common.php';
-    if (count($argv)<2){
-        print "パッケージファイルがあるフォルダを指定してください\n";
+    
+    $opts = getopt("d:");
+    if ($opts===FALSE){
+        print("オプションが変\n");
         exit;
     }
-
-    try {       
-        $oImp=create_import_dir($argv[1]);
-        $oImp->imp_installed_org();
-        $msg= sprintf("%s下のパッケージファイルからオリジナルを置き換えました。",$argv[1]);
-    } catch (Exception $e) {
-        $msg= "オリジナルのデータの更新に失敗しました。\n".$e->getMessage();
+    if (array_key_exists("d", $opts)){
+        try {       
+            $oImp=create_import_dir($opts["d"]);
+            $oImp->imp_installed_org();
+            $msg= sprintf("%s下のパッケージファイルからオリジナルを置き換えました。",$opts["d"]);
+        } catch (Exception $e) {
+            $msg= "オリジナルのデータの更新に失敗しました。\n".$e->getMessage();
+        }    
+    }else{
+        try {
+            $oImp=create_import();
+            $oImp->imp_installed_org();
+            $msg= sprintf("オリジナルを置き換えました。");
+        } catch (Exception $e) {
+            $msg= "オリジナルのデータの更新に失敗しました。\n".$e->getMessage();
+        }
     }
+
     print $msg . "\n";
 ?>

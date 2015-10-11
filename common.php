@@ -210,7 +210,7 @@
         $oImp = null;
         if (file_exists("/usr/bin/dpkg")){
             $oImp = new import_deb_dir($pkg_dir);
-        }elseif (file_exists("/bin/rpm")){
+        }elseif (file_exists("/bin/rpm")||file_exists("/usr/bin/rpm")){
             $oImp = new import_rpm_dir($pkg_dir);
         }else{
             throw new Exception("dpkgもrpmもありません");
