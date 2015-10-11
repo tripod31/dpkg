@@ -36,7 +36,7 @@ dpkg -l>dpkg.txt
 そのファイルから、オリジナルの状態を更新します
 
 ・debファイルがあるディレクトリからオリジナルの状態を更新する
-$php imp_installed_org.php [debファイルがあるディレクトリ]
+$php imp_installed_org.php -d [debファイルがあるディレクトリ]
 
 ■トラブルシューティング
 ・smarty3のエラーが出る場合
