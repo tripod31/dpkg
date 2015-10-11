@@ -18,7 +18,7 @@ php5-sqlite
 apt-show-versions
 
 ■設定
-$sh setup.sh
+$./setup.sh
 以下を行なっています
 ・DB作成
 ・apacheからファイル・ディレクトリの書き込み権を設定
