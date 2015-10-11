@@ -106,7 +106,7 @@
         }
         
         protected function read_package($stmt,$tbl,$package,$lno){
-            $fp = popen(sprintf("dpkg -I '%s'", $package),"r");
+            $fp = popen(sprintf("dpkg -I '%s'", rtrim($package)),"r");
             if ($fp === FALSE)
                 throw new Exception("dpkg -Iでエラー");
             $all_line="";
