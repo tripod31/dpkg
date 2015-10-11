@@ -61,6 +61,16 @@
         }
     }
     
+    abstract class import_dir extends import{
+        protected $pkg_dir="";
+        
+        function __construct($pkg_dir){
+            if (!file_exists($pkg_dir))
+                throw new Exception($pkg_dir."がありません");
+            $this->pkg_dir = $pkg_dir;
+        }
+	}
+    
     class import_dpkg extends import{
         protected function open_list_command(){
             if (!file_exists("/usr/bin/dpkg"))
@@ -85,19 +95,6 @@
             }
         }       
     }
-    
-    class import_dir extends import{
-        protected $pkg_dir="";
-        
-        function __construct($pkg_dir){
-            if (!file_exists($pkg_dir))
-                throw new Exception($pkg_dir."がありません");
-            $this->pkg_dir = $pkg_dir;
-        }
-        protected function open_list_command(){}
-        protected function read_package($stmt,$tbl,$line,$lno){}
-	}
-    
     
     class import_deb_dir extends import_dir{        
         protected function open_list_command(){
