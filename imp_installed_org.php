@@ -3,7 +3,7 @@
     
     $opts = getopt("d:");
     if ($opts===FALSE){
-        print("オプションが変\n");
+        print("オプション:-d [パッケージファイルがあるディレクトリ]\n");
         exit;
     }
     if (array_key_exists("d", $opts)){
