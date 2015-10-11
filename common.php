@@ -84,19 +84,24 @@
                 print "dpkg-l:フォーマットが変<BR>" . $line . "<BR>";
             }
         }       
-     }
+    }
     
-    class import_deb extends import{
-        private $deb_dir="";
+    class import_dir extends import{
+        protected $pkg_dir="";
         
-        function __construct($deb_dir){
-            if (!file_exists($deb_dir))
-                throw new Exception($deb_dir."がありません");
-            $this->deb_dir = $deb_dir;
+        function __construct($pkg_dir){
+            if (!file_exists($pkg_dir))
+                throw new Exception($pkg_dir."がありません");
+            $this->pkg_dir = $pkg_dir;
         }
-        
+        protected function open_list_command(){}
+        protected function read_package($stmt,$tbl,$line,$lno){}
+	}
+    
+    
+    class import_deb_dir extends import_dir{        
         protected function open_list_command(){
-            $command = sprintf("find %s -name *.deb -print",$this->deb_dir);
+            $command = sprintf("find '%s' -name *.deb -print",$this->pkg_dir);
             $pp = popen($command,"r");
             if ($pp === FALSE)
                 throw new Exception("findでエラー");
@@ -104,7 +109,7 @@
         }
         
         protected function read_package($stmt,$tbl,$package,$lno){
-            $fp = popen("dpkg -I " . $package,"r");
+            $fp = popen(sprintf("dpkg -I '%s'", $package),"r");
             if ($fp === FALSE)
                 throw new Exception("dpkg -Iでエラー");
             $all_line="";
@@ -157,14 +162,59 @@
             }
         }
     }
-           
+    
+    class import_rpm_dir extends import_dir{        
+        protected function open_list_command(){
+            $command = sprintf("find '%s' -name *.rpm -print",$this->pkg_dir);
+            $pp = popen($command,"r");
+            if ($pp === FALSE)
+                throw new Exception("findでエラー");
+            return $pp;
+        }
+                
+        protected function read_package($stmt,$tbl,$package,$lno){
+			$cmd =sprintf("rpm --queryformat '%%{NAME}__TAB__%%{VERSION}__TAB__%%{DESCRIPTION}' -qp '%s'", rtrim($package));
+            #print("[".$cmd."]"."\n");
+            $fp = popen($cmd,"r");
+            if ($fp === FALSE)
+                throw new Exception("rpm -qでエラー");
+            $all_line="";
+            while($line = fgets($fp)){
+                $all_line.=str_replace("\n","",$line);
+            }
+            $res = preg_match("/(.+)__TAB__(.+)__TAB__(.+)/",$all_line,$arr);
+            if ($res){
+                $name =$arr[1];
+                if ($name !="gpg-pubkey"){
+                    $parm = array(':status'=>'installed',':name' => $name,':version'=>$arr[2],':desc'=>str_replace("'","",$arr[3]));
+                    if ( $stmt->execute($parm)===FALSE)
+                        throw new Exception($this->getErrorMsg($conn));
+                }
+            } else {
+                print "rpm -q:フォーマットが変<BR>" . $all_line . "<BR>";
+            }
+        }
+    }
+              
     #ファクトリメソッド
     function create_import(){
         $oImp = null;
         if (file_exists("/usr/bin/dpkg")){
             $oImp = new import_dpkg();
-        }elseif (file_exists("/usr/bin/rpm")){
+        }elseif (file_exists("/bin/rpm")){
             $oImp = new import_rpm();
+        }else{
+            throw new Exception("dpkgもrpmもありません");
+        }
+        return $oImp;
+    }
+    
+    function create_import_dir($pkg_dir){
+        $oImp = null;
+        if (file_exists("/usr/bin/dpkg")){
+            $oImp = new import_deb_dir($pkg_dir);
+        }elseif (file_exists("/bin/rpm")){
+            $oImp = new import_rpm_dir($pkg_dir);
         }else{
             throw new Exception("dpkgもrpmもありません");
         }
