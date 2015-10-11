@@ -1,5 +1,5 @@
 <?php
-    require_once 'common.php';          
+    require_once 'import.php';          
     require_once('smarty3/Smarty.class.php');
     require_once('sqlbuilder.php');
     
