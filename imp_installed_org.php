@@ -1,5 +1,5 @@
 <?php
-    require_once 'common.php';
+    require_once 'import.php';
     
     $opts = getopt("d:");
     if ($opts===FALSE){

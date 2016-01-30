@@ -85,9 +85,10 @@
             if ($lno <= 5)
                 return; #ヘッダスキップ
             
-            $res = preg_match("/(\S+)\s+(\S+)\s+(\S+)(.+)/",$line,$arr);
+            $res = preg_match("/(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.+)/",$line,$arr);
             if ($res){
-                $parm = array(':status' => $arr[1],':name'=>$arr[2],':version'=>$arr[3],':desc'=>str_replace("'","",$arr[4]));
+                $parm = array(
+					':status' => $arr[1],':name'=>$arr[2],':version'=>$arr[3],':desc'=>str_replace("'","",trim($arr[5])));
                 if ( $stmt->execute($parm)===FALSE)
                     throw new Exception($this->getErrorMsg($conn));
             } else {
