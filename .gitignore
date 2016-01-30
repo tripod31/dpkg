@@ -1,6 +1,7 @@
 templates_c/*.php
 nbproject/
 dpkg.db
+readme.md.html
 
 #################
 ## Eclipse
@@ -218,3 +219,4 @@ pip-log.txt
 #Mr Developer
 .mr.developer.cfg
 /memo.txt
+/.readme.md.html
