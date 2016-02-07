@@ -46,3 +46,4 @@ dpkgの出力を見るためのPHPアプリケーション
 ####debファイルがあるディレクトリからオリジナルの状態を更新する  
     $php imp_installed_org.php -d [debファイルがあるディレクトリ]
 
+<img src="http://www.geocities.jp/tripod31hoge/images/dpkg.jpg" width="50%">
