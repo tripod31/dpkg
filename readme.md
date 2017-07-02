@@ -4,10 +4,10 @@ dpkgの出力を見るためのPHPアプリケーション
 
 ■動作確認環境
 -----
-+ debian wheezy
-+ virtualbox4.3.6
++ debian stretch
++ virtualbox5.1.22
 + apahce2
-+ php5
++ php7.0
 + smarty3
 + sqlite3
 
@@ -15,9 +15,9 @@ dpkgの出力を見るためのPHPアプリケーション
 -----
 以下を追加でインストールしました
 + apache2
-+ php5
++ php
 + smarty3
-+ php5-sqlite
++ php7.0-sqlite3
 + apt-show-versions
 
 ■設定
