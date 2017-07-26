@@ -17,6 +17,7 @@ dpkgの出力を見るためのPHPアプリケーション
 + apache2
 + php
 + smarty3
++ sqlite3
 + php7.0-sqlite3
 + apt-show-versions
 
