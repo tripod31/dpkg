@@ -7,8 +7,6 @@ readme.md.html
 ## Eclipse
 #################
 
-*.pydevproject
-.project
 .metadata
 bin/
 tmp/
