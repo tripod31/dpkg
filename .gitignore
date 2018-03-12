@@ -29,7 +29,8 @@ local.properties
 .cproject
 
 # PDT-specific
-.buildpath
+#yoshi
+#.buildpath
 
 
 #################
