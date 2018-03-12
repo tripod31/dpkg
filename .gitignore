@@ -216,5 +216,6 @@ pip-log.txt
 
 #Mr Developer
 .mr.developer.cfg
-/memo.txt
-/.readme.md.html
+
+#yoshi
+make_tar*
