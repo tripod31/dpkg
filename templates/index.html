@@ -1,0 +1,221 @@
+{% extends "layout.html" %}
+
+{% block title %}
+dpkg
+{% endblock %}
+
+{% block content %}
+
+<appのテンプレート>
+<div id="app" class="m-3">
+   <mycomp/>
+</div>
+
+<!-- mycompコンポーネントのテンプレート -->
+{% raw %}
+<template id="mycomp-template">
+    <div>
+        <!--更新時刻-->
+        <div class="m-1">
+            <div class="d-inline-block" style="width:70px">現在</div>
+            <div class="d-inline-block" style="width:200px">{{data['info']['saved_time_cur']}}</div>
+        </div>
+        <div class="m-1">
+            <div class="d-inline-block" style="width:70px">オリジナル</div>
+            <div class="d-inline-block" style="width:200px">{{data['info']['saved_time_org']}}</div>
+        </div>
+        <button v-on:click="current" class="m-1 btn btn-light" >現在</button>
+        <button v-on:click="original" class="m-1 btn btn-light">オリジナル</button>
+        <button v-on:click="common" class="m-1 btn btn-light">共通</button>
+        <button v-on:click="update" class="m-1 btn btn-light">アップデート</button>
+        <button v-on:click="diff_cur" class="m-1 btn btn-light">現在のみ</button>
+        <button v-on:click="diff_org" class="m-1 btn btn-light">オリジナルのみ</button>
+        <div class="form-group form-inline">
+            <label for="pkg-name" class="m-1">パッケージ名</label>
+            <input type="text" class="d-inline-block m-1 form-control" style="width:200px" id="pkg-name" 
+                v-model="pkg_name">
+            <button v-on:click="clear_pkg_name" class="m-1 btn btn-light">クリア</button>
+        </div>
+
+        <!--SQL--> 
+        <div class="alert alert-info"> 
+            <h5>{{sql}}</h5>
+        </div>
+        <div>{{data['rows'].length}}件</div>
+        <!-- SQLの結果をテーブルで表示 -->
+        <table class="table">
+        <thead>
+            <th v-for="colname in data['colnames']">
+                {{colname}}
+            </th>
+        </thead>
+            <tbody>
+                <tr v-for="row in data['rows']">
+                    <td v-for ="col in row">{{col}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</template>
+{% endraw %}
+
+<!-- Vue.js script -->
+<script>
+
+/*  
+SQL作成
+SQLにWHEREとORDER BYを追加する
+*/
+const sql_builder={
+    base_sql:'',
+    conds : [],
+    order_by : '',
+    init : function() {
+        this.base_sql = ''
+        this.conds = []
+        this.order_by = ''
+    },
+    get_sql : function () {
+        sql = this.base_sql
+        if (this.conds.length> 0) {
+            sql = this.base_sql + " WHERE " + this.conds.join(' AND ')
+        }
+        if (this.order_by.length > 0){
+            sql = sql + " ORDER BY " + this.order_by
+        }
+        return sql
+    }
+}
+
+// mycompコンポーネント
+const MyComp = {
+    template: '#mycomp-template',   //<template id="mycomp-template">に対応する
+    props: {
+    },
+    emits:[
+    ],
+    setup(props, context) {
+
+        // テンプレート内で参照する変数
+        const sql = Vue.ref("")
+        const data = Vue.ref({
+            columns:[],rows:[],
+            info:{
+                'saved_time_cur':"",
+                'saved_time_org':"",
+            }
+        })
+        const pkg_name = Vue.ref("")
+
+        // POSTでajax通信
+        // SQLを送信して結果のクエリ―データを受信
+        const getdata= function() {
+            let formData = new FormData();
+            formData.append("sql", sql.value);
+            $.ajax({
+                type: 'POST',
+                url: '/ajax',
+                data: formData,
+                processData: false,
+                contentType: false,
+
+                success: function (rcv_data) {
+                    data.value = eval(rcv_data);
+                },
+                error: function(request, status, err) {
+                    console.log(err);
+                }
+            });
+        }
+
+        // イベントハンドラ
+        // テンプレート中のv-on:click="current"に対応する
+        // 現在を表示
+        const current = function(){
+            common_proc('select * from installed',[],'name')
+        }
+        // オリジナルを表示
+        const original = function(){
+            common_proc('select * from installed_org',[],'name')
+        }
+        // 現在とオリジナルで共通するパッケージを表示
+        const common= function(){
+            common_proc(
+                'SELECT \
+                    installed.name, installed.version as current,installed_org.version as original, installed.status \
+                    FROM installed, installed_org',
+                ['installed.name = installed_org.name'],
+                'installed.name')
+        }
+        // 現在とオリジナルでバージョンが違うパッケージを表示
+        const update= function(){
+            common_proc(
+                'SELECT \
+                    installed.name, installed.version as current,installed_org.version as original ,installed.status \
+                    FROM installed, installed_org',
+                ['installed.name = installed_org.name','not installed.version = installed_org.version'],
+                'installed.name')
+        }        
+        // 現在のみ
+        const diff_cur= function(){
+            common_proc(
+                'SELECT \
+                    installed.name ,installed.status as status,installed.version as version,installed.description \
+                    FROM installed LEFT JOIN installed_org ON installed.name = installed_org.name',
+                ['installed_org.name is null'],
+                'installed.name')
+        } 
+        // オリジナルのみ
+        const diff_org= function(){
+            common_proc(
+                'SELECT \
+                    installed_org.name,installed_org.status as status,installed_org.version as version,\
+                    installed_org.description as description \
+                    FROM installed_org LEFT JOIN installed ON installed.name = installed_org.name',
+                ['installed.name is null'],
+                'installed.name')
+        }
+
+        const common_proc= function(base_sql,conds,order_by){
+            sql_builder.init()
+            sql_builder.base_sql = base_sql
+            sql_builder.conds = conds
+            sql_builder.order_by = order_by
+            add_where()
+            sql.value = sql_builder.get_sql()
+            getdata();
+        }
+
+        const clear_pkg_name = () => {
+            pkg_name.value = ''
+        }
+
+        // SQLにwhereを追加
+        const add_where= function(){
+            if ( pkg_name.value != '') {
+                sql_builder.conds.push("name like '%" + pkg_name.value + "%'")
+            }
+        }
+
+        // 初期化
+        current()   // 現在の状態を表示
+
+        // テンプレート内で参照する変数、イベントハンドラをreturn
+        return { sql,data,pkg_name,current,original,common,update,diff_cur,diff_org,clear_pkg_name}
+    },
+};
+
+Vue.createApp({
+    components: {
+        'mycomp':MyComp
+    },
+    setup(){
+    }
+}).mount("#app")    //<div id="app"に対応する
+
+</script>
+{% endblock %}
+
+
+{% block footer %}
+{% endblock %}
