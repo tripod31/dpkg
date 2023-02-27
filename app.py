@@ -1,7 +1,7 @@
-from flask import Flask, render_template, request, session, \
-    redirect, jsonify, g
-
 import sqlite3
+
+from flask import (Flask, g, jsonify, make_response, redirect, render_template,
+                   request, session)
 
 app = Flask(__name__)
 app.secret_key = b'random string...'
@@ -37,9 +37,11 @@ def ajax():
     cur = db.execute("SELECT * FROM info")
     info = {row[0]:row[1] for row in cur.fetchall()}  #{name:info}
 
-    print(info)
+    #print(info)
     data = {'colnames':colnames,'rows':rows,'info':info}
-    return jsonify(data)
+    resp = make_response(jsonify(data))
+    resp.headers['Access-Control-Allow-Origin'] = '*'   #同一ドメイン以外でもアクセス可能にする
+    return resp
 
 if __name__ == '__main__':
     app.debug = True

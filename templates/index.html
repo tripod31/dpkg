@@ -66,16 +66,11 @@ dpkg
 SQL作成
 SQLにWHEREとORDER BYを追加する
 */
-const sql_builder={
-    base_sql:'',
-    conds : [],
-    order_by : '',
-    init : function() {
-        this.base_sql = ''
-        this.conds = []
-        this.order_by = ''
-    },
-    get_sql : function () {
+function sql_builder(base_sql,conds,order_by) {
+    this.base_sql = base_sql
+    this.conds =conds   // array
+    this.order_by =order_by
+    this.get_sql = function () {
         sql = this.base_sql
         if (this.conds.length> 0) {
             sql = this.base_sql + " WHERE " + this.conds.join(' AND ')
@@ -112,20 +107,20 @@ const MyComp = {
         const getdata= function() {
             let formData = new FormData();
             formData.append("sql", sql.value);
-            $.ajax({
-                type: 'POST',
-                url: '/ajax',
-                data: formData,
-                processData: false,
-                contentType: false,
-
-                success: function (rcv_data) {
-                    data.value = eval(rcv_data);
-                },
-                error: function(request, status, err) {
-                    console.log(err);
-                }
+            fetch('ajax',{
+                    method: 'POST',
+                    body: formData
+                }).then((response) => {
+                    if(!response.ok) {
+                        console.log('error!');
+                    } 
+                    return response.json();
+                }).then((rcv_data)  => {
+                    data.value =rcv_data;
+                }).catch((error) => {
+                    console.log(error);
             });
+        
         }
 
         // イベントハンドラ
@@ -173,28 +168,25 @@ const MyComp = {
                     installed_org.description as description \
                     FROM installed_org LEFT JOIN installed ON installed.name = installed_org.name',
                 ['installed.name is null'],
-                'installed.name')
+            )
         }
 
         const common_proc= function(base_sql,conds,order_by){
-            sql_builder.init()
-            sql_builder.base_sql = base_sql
-            sql_builder.conds = conds
-            sql_builder.order_by = order_by
-            add_where()
-            sql.value = sql_builder.get_sql()
+            sb = new sql_builder(base_sql,conds,order_by)
+            add_where(sb)
+            sql.value = sb.get_sql()
             getdata();
+        }
+
+        // SQLにwhereを追加
+        const add_where= function(sb){
+            if ( pkg_name.value != '') {
+                sb.conds.push("name like '%" + pkg_name.value + "%'")
+            }
         }
 
         const clear_pkg_name = () => {
             pkg_name.value = ''
-        }
-
-        // SQLにwhereを追加
-        const add_where= function(){
-            if ( pkg_name.value != '') {
-                sql_builder.conds.push("name like '%" + pkg_name.value + "%'")
-            }
         }
 
         // 初期化
