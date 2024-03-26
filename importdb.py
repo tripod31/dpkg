@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import sqlite3
 import subprocess
 from subprocess import PIPE
@@ -129,6 +131,7 @@ class ImportFromInitialFile(ImportDb):
                 raise Exception(initial_file_test+"がありません")
             self.initial_file_test = initial_file_test
         else:
+            self.initial_file_test = None
             if not os.path.exists("/var/log/installer/initial-status.gz"):
                 raise Exception("/var/log/installer/initial-status.gzがありません")
 
@@ -136,7 +139,7 @@ class ImportFromInitialFile(ImportDb):
         if self.initial_file_test is not None:
             fo = open(self.initial_file_test,"r",encoding='utf-8')
         else:
-            res = subprocess.Popen("gzip -dc /var/log/installer/initial-package.gz",stdout=PIPE,text=True,shell=True)
+            res = subprocess.Popen("gzip -dc /var/log/installer/initial-status.gz",stdout=PIPE,text=True,shell=True)
             fo=res.stdout
 
         pkg_info = {}

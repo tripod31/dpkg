@@ -4,7 +4,7 @@ dpkgの出力を見るためのアプリケーション。サーバーにFlask�
 
 動作確認環境
 -----
-+ ubuntu22.04＠wsl2
++ ubuntu23.10
 + python3.10.6
 + flask2.2.3
 + sqlite3
@@ -27,23 +27,36 @@ importdb.py
 ----
 DBを更新するプログラムです
 
-    usage: importdb.py [-h] [--package_dir PACKAGE_DIR] [--dpkg_file DPKG_FILE]
+```
+usage: importdb.py [-h] [--package_dir PACKAGE_DIR] [--dpkg_file DPKG_FILE] [--initial_file_test INITIAL_FILE_TEST] [--initial_file]
 
-    options:
-    -h, --help            show this help message and exit
-    --package_dir PACKAGE_DIR
-                            *.debファイルがあるディレクトリ。
-    --dpkg_file DPKG_FILE
-                            dpkgの出力ファイル(dpkg -l>dpkg.txt)
+options:
+  -h, --help            show this help message and exit
+  --package_dir PACKAGE_DIR
+                        *.debファイルがあるディレクトリ
+  --dpkg_file DPKG_FILE
+                        dpkg -lの出力結果ファイルのパス
+  --initial_file_test INITIAL_FILE_TEST
+                        /var/log/installer/initial-status.gzを解凍したファイルのパス
+  --initial_file        /var/log/installer/initial-status.gzからパッケージ情報を読み込む
+  ```
 
 #### dpkgコマンドの出力から現在の状態を更新する  
-    $python3 importdb.py
-
+```
+$python3 importdb.py
+```
 #### debファイルがあるディレクトリからオリジナルの状態を更新する  
-    $python3 importdb.py --package_dir PACKAGE_DIR
-
+```
+$python3 importdb.py --package_dir PACKAGE_DIR
+```
 #### dpkgコマンドの出力を保存したファイルからオリジナルの状態を更新する  
-    $dpkg -l > dpkg.txt
-    $python3 importdb.py --dpkg_file dpkg.txt
+```
+$dpkg -l > dpkg.txt
+$python3 importdb.py --dpkg_file dpkg.txt
+```
+#### /var/log/installer/initial-status.gzからオリジナルの状態を更新する  
+```
+$python3 importdb.py --initial_file
+```
 
 <img src="https://user-images.githubusercontent.com/6335693/222418411-32b51acd-b91c-4794-ba52-4e0e7b0c8b35.png" >
