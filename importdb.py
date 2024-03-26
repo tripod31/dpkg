@@ -2,7 +2,6 @@
 
 import sqlite3
 import subprocess
-from subprocess import PIPE
 import os
 import re
 import argparse
@@ -10,7 +9,10 @@ import datetime
 
 DB_FILE = 'dpkg.db'
     
-class ImportDb:   
+class ImportDb:
+    """
+    親クラス
+    """
     def import_installed(self):
         conn=sqlite3.connect(DB_FILE)
         cur = conn.cursor()
@@ -23,9 +25,8 @@ class ImportDb:
         cur.execute(sql)
         conn.commit()
 
-    def import_installed_org(self,fo=None):
+    def import_installed_org(self):
         """
-        fp: ファイルオブジェクト。Noneの場合、コマンドから情報を読み取る
         """
         conn=sqlite3.connect(DB_FILE)
         cur = conn.cursor()
@@ -61,13 +62,14 @@ class ImportFromDpkg(ImportDb):
         else:
             if not os.path.exists("/usr/bin/dpkg"):
                 raise Exception("/usr/bin/dpkgがない")      
-            res = subprocess.Popen(["dpkg", "-l"],stdout=PIPE,text=True)
+            res = subprocess.Popen(["dpkg", "-l"],stdout=subprocess.PIPE,text=True)
             fo = res.stdout
 
         lno = 0
         for line in fo:
             lno +=1
             self.read_package(conn,tbl,line.strip(),lno)
+        print(f"{lno-1}件読み込みました")
 
     def read_package(self,conn,tbl,line,lno):
         if lno <= 5:
@@ -81,7 +83,7 @@ class ImportFromDpkg(ImportDb):
             #print(sql)
             conn.cursor().execute(sql)
         else:
-            print("dpkg -l:フォーマットが変<BR>" + line + "<BR>")
+            print(f"dpkg -l:フォーマットがおかしいのでスキップします：\n{line}")
 
 class ImportFromDebDir(ImportDb):
     """
@@ -94,17 +96,18 @@ class ImportFromDebDir(ImportDb):
 
     def read_packages(self,conn,tbl):
         command = ['find',self.pkg_dir, '-name','*.deb', '-print']
-        res = subprocess.Popen(command,stdout=PIPE,text=True)
-        lno = 0
+        res = subprocess.Popen(command,stdout=subprocess.PIPE,text=True)
+        cnt = 0
         for line in res.stdout:
-            lno +=1
+            cnt +=1
             self.read_package(conn,tbl,line.strip())
+        print(f"{cnt}件読み込みました")
 
     def read_package(self,conn,tbl,package):
         """
         package:    debファイルのパス
         """
-        res = subprocess.Popen(['dpkg', '-I', package],stdout=PIPE,text=True)
+        res = subprocess.Popen(['dpkg', '-I', package],stdout=subprocess.PIPE,text=True)
 
         cols = {}
         for line in res.stdout:
@@ -139,28 +142,30 @@ class ImportFromInitialFile(ImportDb):
         if self.initial_file_test is not None:
             fo = open(self.initial_file_test,"r",encoding='utf-8')
         else:
-            res = subprocess.Popen("gzip -dc /var/log/installer/initial-status.gz",stdout=PIPE,text=True,shell=True)
+            res = subprocess.Popen("gzip -dc /var/log/installer/initial-status.gz",stdout=subprocess.PIPE,text=True,shell=True)
             fo=res.stdout
 
+        cnt = 0
         pkg_info = {}
         for line in fo:
             m = re.match("Package: (.+)", line.strip())
             if m:
-                pkg_info.clear()
                 package = m.group(1)
+                if len(pkg_info)==3:
+                    #パッケージ情報が全て取得できた場合
+                    status,version,arch,desc = ('ii',pkg_info['Version'],pkg_info['Architecture'],
+                        pkg_info['Description'].replace("'",""))    #"'"はSQLでエラーになるので除く
+                    sql = f"INSERT INTO {tbl} values('{status}','{package}','{version}','{arch}','{desc}')"
+                    #print(sql)
+                    conn.cursor().execute(sql)
+                    cnt+=1
+                    pkg_info.clear()                
                 continue
 
             m = re.match("(Version|Architecture|Description): (.+)", line.strip())
             if m:
                 pkg_info[m.group(1)]=m.group(2)
-            if len(pkg_info)==3:
-                #パッケージ情報が全て取得できた場合
-                status,version,arch,desc = ('ii',pkg_info['Version'],pkg_info['Architecture'],
-                    pkg_info['Description'].replace("'",""))    #"'"はSQLでエラーになるので除く
-                sql = f"INSERT INTO {tbl} values('{status}','{package}','{version}','{arch}','{desc}')"
-                print(sql)
-                conn.cursor().execute(sql)
-                pkg_info.clear()
+        print(f"{cnt}件読み込みました")
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

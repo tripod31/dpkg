@@ -1,7 +1,9 @@
+#!/usr/bin/env python3
+
 import sqlite3
 
-from flask import (Flask, g, jsonify, make_response, redirect, render_template,
-                   request, session)
+from flask import (Flask, g, jsonify, make_response, render_template,
+                   request)
 
 app = Flask(__name__)
 app.secret_key = b'random string...'

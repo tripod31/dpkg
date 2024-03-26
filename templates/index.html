@@ -168,6 +168,7 @@ const MyComp = {
                     installed_org.description as description \
                     FROM installed_org LEFT JOIN installed ON installed.name = installed_org.name',
                 ['installed.name is null'],
+                'installed_org.name'
             )
         }
 
