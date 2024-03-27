@@ -40,18 +40,18 @@ options:
 ```
 $python3 importdb.py
 ```
-#### debファイルがあるディレクトリからオリジナルのパッケージ情報を更新する  
+#### /var/log/installer/initial-status.gzからオリジナルのパッケージ情報を更新する  
 ```
-$python3 importdb.py --package_dir PACKAGE_DIR
+$python3 importdb.py --initial_file
 ```
 #### dpkgコマンドの出力を保存したファイルからオリジナルのパッケージ情報を更新する  
 ```
 $dpkg -l > dpkg.txt
 $python3 importdb.py --dpkg_file dpkg.txt
 ```
-#### /var/log/installer/initial-status.gzからオリジナルのパッケージ情報を更新する  
+#### debファイルがあるディレクトリからオリジナルのパッケージ情報を更新する  
 ```
-$python3 importdb.py --initial_file
+$python3 importdb.py --package_dir PACKAGE_DIR
 ```
 
 <img src="https://user-images.githubusercontent.com/6335693/222418411-32b51acd-b91c-4794-ba52-4e0e7b0c8b35.png" >
