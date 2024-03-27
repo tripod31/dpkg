@@ -169,18 +169,21 @@ class ImportFromInitialFile(ImportDb):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--package_dir'     ,help='*.debファイルがあるディレクトリ')
-    parser.add_argument('--dpkg_file'       ,help='dpkg -lの出力結果ファイルのパス')
-    parser.add_argument('--initial_file_test'    ,help='/var/log/installer/initial-status.gzを解凍したファイルのパス')
+    parser.add_argument('--dpkg_file',
+                        help='dpkg -lの出力結果ファイルのパス。オリジナルのパッケージ情報を読み込む')
     parser.add_argument('--initial_file',    
                         action='store_true',
-                        help='/var/log/installer/initial-status.gzからパッケージ情報を読み込む')
+                        help='/var/log/installer/initial-status.gzからオリジナルのパッケージ情報を読み込む')
+    parser.add_argument('--initial_file_test',
+                        help='/var/log/installer/initial-status.gzを解凍したファイルのパス。オリジナルのパッケージ情報を読み込む')
+    parser.add_argument('--package_dir',
+                        help='*.debファイルがあるディレクトリ。オリジナルのパッケージ情報を読み込む')
 
     args=parser.parse_args()
     print(args)
 
     if args.package_dir:
-        print(f"オリジナルのパッケージ情報を{args.package_dir}の*.debファイルから読み込みます")
+        print(f"オリジナルのパッケージ情報を{args.package_dir}下の*.debファイルから読み込みます")
         obj = ImportFromDebDir(args.package_dir)
         obj.import_installed_org()
 

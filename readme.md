@@ -1,4 +1,4 @@
-dpkg
+dpkg
 =====
 dpkgの出力を見るためのアプリケーション。サーバーにFlask、フロントエンドにvueを使用
 
@@ -28,18 +28,18 @@ importdb.py
 DBを更新するプログラムです
 
 ```
-usage: importdb.py [-h] [--package_dir PACKAGE_DIR] [--dpkg_file DPKG_FILE] [--initial_file_test INITIAL_FILE_TEST] [--initial_file]
+usage: importdb.py [-h] [--dpkg_file DPKG_FILE] [--initial_file] [--initial_file_test INITIAL_FILE_TEST] [--package_dir PACKAGE_DIR]
 
 options:
   -h, --help            show this help message and exit
-  --package_dir PACKAGE_DIR
-                        *.debファイルがあるディレクトリ
   --dpkg_file DPKG_FILE
-                        dpkg -lの出力結果ファイルのパス
+                        dpkg -lの出力結果ファイルのパス。オリジナルのパッケージ情報を読み込む
+  --initial_file        /var/log/installer/initial-status.gzからオリジナルのパッケージ情報を読み込む
   --initial_file_test INITIAL_FILE_TEST
-                        /var/log/installer/initial-status.gzを解凍したファイルのパス
-  --initial_file        /var/log/installer/initial-status.gzからパッケージ情報を読み込む
-  ```
+                        /var/log/installer/initial-status.gzを解凍したファイルのパス。オリジナルのパッケージ情報を読み込む
+  --package_dir PACKAGE_DIR
+                        *.debファイルがあるディレクトリ。オリジナルのパッケージ情報を読み込む
+```
 
 #### dpkgコマンドの出力から現在の状態を更新する  
 ```
