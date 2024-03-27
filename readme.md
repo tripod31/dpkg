@@ -41,20 +41,20 @@ options:
                         *.debファイルがあるディレクトリ。オリジナルのパッケージ情報を読み込む
 ```
 
-#### dpkgコマンドの出力から現在の状態を更新する  
+#### dpkgコマンドの出力から現在のパッケージ情報を更新する  
 ```
 $python3 importdb.py
 ```
-#### debファイルがあるディレクトリからオリジナルの状態を更新する  
+#### debファイルがあるディレクトリからオリジナルのパッケージ情報を更新する  
 ```
 $python3 importdb.py --package_dir PACKAGE_DIR
 ```
-#### dpkgコマンドの出力を保存したファイルからオリジナルの状態を更新する  
+#### dpkgコマンドの出力を保存したファイルからオリジナルのパッケージ情報を更新する  
 ```
 $dpkg -l > dpkg.txt
 $python3 importdb.py --dpkg_file dpkg.txt
 ```
-#### /var/log/installer/initial-status.gzからオリジナルの状態を更新する  
+#### /var/log/installer/initial-status.gzからオリジナルのパッケージ情報を更新する  
 ```
 $python3 importdb.py --initial_file
 ```
