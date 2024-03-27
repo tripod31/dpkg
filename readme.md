@@ -1,30 +1,25 @@
-dpkg
-=====
+# dpkg
 dpkgの出力を見るためのアプリケーション。サーバーにFlask、フロントエンドにvueを使用
 
-動作確認環境
------
+## 動作確認環境
 + ubuntu23.10
 + python3.10.6
 + flask2.2.3
 + sqlite3
 
-設定
------
+## 設定
 DBを作成します  
 
     $sqlite3 dpkg.db < create.sql
 
-使い方
------
+## 使い方
 #### ウェブサーバー起動
     $python3 app.py
 
 http://localhost:5000
 で見れます
 
-importdb.py
-----
+## importdb.py
 DBを更新するプログラムです
 
 ```
