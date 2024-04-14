@@ -35,6 +35,12 @@ dpkg
             <input type="text" class="d-inline-block m-1 form-control" style="width:200px" id="pkg-name" 
                 v-model="pkg_name">
             <button v-on:click="clear_pkg_name" class="m-1 btn btn-light">クリア</button>
+            <label class="form-check-label" for="hide-lib">
+                <input type="checkbox" class="form-check-input" id="hide-lib" v-model="hide_lib" />&nbsp;*libを除く&nbsp;
+            </label>
+            <label class="form-check-label" for="hide-rc">
+                <input type="checkbox" class="form-check-input" id="hide-rc" v-model="hide_rc" />&nbsp;status=rcを除く
+            </label>
         </div>
 
         <!--SQL--> 
@@ -101,12 +107,17 @@ const MyComp = {
             }
         })
         const pkg_name = Vue.ref("")
+        const hide_lib = Vue.ref("")
+        const hide_rc = Vue.ref("")
 
         // POSTでajax通信
         // SQLを送信して結果のクエリ―データを受信
         const getdata= function() {
             let formData = new FormData();
             formData.append("sql", sql.value);
+            formData.append("pkg_name", pkg_name.value);
+            formData.append("hide_lib", hide_lib.value);
+            formData.append("hide_rc", hide_rc.value);
             fetch('ajax',{
                     method: 'POST',
                     body: formData
@@ -174,16 +185,8 @@ const MyComp = {
 
         const common_proc= function(base_sql,conds,order_by){
             sb = new sql_builder(base_sql,conds,order_by)
-            add_where(sb)
             sql.value = sb.get_sql()
             getdata();
-        }
-
-        // SQLにwhereを追加
-        const add_where= function(sb){
-            if ( pkg_name.value != '') {
-                sb.conds.push("name like '%" + pkg_name.value + "%'")
-            }
         }
 
         const clear_pkg_name = () => {
@@ -194,7 +197,9 @@ const MyComp = {
         current()   // 現在の状態を表示
 
         // テンプレート内で参照する変数、イベントハンドラをreturn
-        return { sql,data,pkg_name,current,original,common,update,diff_cur,diff_org,clear_pkg_name}
+        return { 
+            sql,data,pkg_name,hide_lib,hide_rc,
+            current,original,common,update,diff_cur,diff_org,clear_pkg_name}
     },
 };
 
