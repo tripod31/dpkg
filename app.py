@@ -45,9 +45,9 @@ def ajax():
     for row in rows_org:
         if len(pkg_name)>0 and pkg_name not in row[colname_idx["name"]]:
             continue
-        if hide_lib and "lib" in row[colname_idx["name"]]:
+        if hide_lib == 'true' and "lib" in row[colname_idx["name"]]:
             continue
-        if hide_rc and row[colname_idx["status"]]=="rc":
+        if hide_rc == 'true' and row[colname_idx["status"]]=="rc":
             continue
 
         rows.append(row)
