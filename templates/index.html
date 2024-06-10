@@ -38,7 +38,7 @@ dpkg
                 v-model="pkg_name">
             <button v-on:click="clear_pkg_name" class="m-1 btn btn-light">クリア</button>
             <label class="m-1 form-check-label" for="hide_lib">
-                <input v-on:change="getdata" type="checkbox" class="m-1 form-check-input" id="hide_lib" v-model="hide_lib" />*libを除く
+                <input v-on:change="getdata" type="checkbox" class="m-1 form-check-input" id="hide_lib" v-model="hide_lib" />lib*を除く
             </label>
             <label class="m-1 form-check-label" for="hide_rc">
                 <input v-on:change="getdata" type="checkbox" class="m-1 form-check-input" id="hide_rc" v-model="hide_rc" />status=rcを除く
@@ -51,7 +51,7 @@ dpkg
         </div>
         <div>{{data['rows'].length}}件</div>
         <!-- SQLの結果をテーブルで表示 -->
-        <table class="table">
+        <table class="table table-striped">
         <thead>
             <th v-for="colname in data['colnames']">
                 {{colname}}
@@ -211,7 +211,7 @@ Vue.createApp({
     },
     setup(){
     }
-}).mount("#app")    //<div id="app"に対応する
+}).mount("#app")    //<div id="app">に対応する
 
 </script>
 {% endblock %}

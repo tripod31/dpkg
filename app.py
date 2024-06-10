@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import sqlite3
+import os
 
 from flask import (Flask, g, jsonify, make_response, render_template,
                    request)
@@ -62,5 +63,6 @@ def ajax():
     return resp
 
 if __name__ == '__main__':
+    os.chdir(os.path.dirname(__file__))    #スクリプトのディレクトリに移動 
     app.debug = True
     app.run(host='0.0.0.0')
