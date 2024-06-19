@@ -6,7 +6,7 @@ dpkg
 
 {% block content %}
 
-<appのテンプレート>
+<!--appのテンプレート-->
 <div id="app" class="m-3">
    <mycomp/>
 </div>
@@ -51,16 +51,23 @@ dpkg
         </div>
         <div>{{data['rows'].length}}件</div>
         <!-- SQLの結果をテーブルで表示 -->
-        <table class="table table-striped">
-        <thead>
-            <th v-for="colname in data['colnames']">
-                {{colname}}
-            </th>
-        </thead>
-            <tbody class="table-group-divider">
-                <tr v-for="row in data['rows']">
-                    <td v-for ="col in row">{{col}}</td>
+        <table class="table">
+            <thead>
+                <tr class="table-info">
+                    <th v-for="colname in data['colnames']">{{colname}}</th>     
                 </tr>
+            </thead>
+            <tbody>
+                <!--templateタグはダミー。v-forで使うとtemplateタグは出力されない-->
+                <template v-for="(row,idx) in data['rows']">
+                    <!-- テーブルの途中でヘッダを表示。10行毎-->
+                    <tr class="table-info" v-if="idx != 0 && idx % 10 == 0">
+                        <th v-for="colname in data['colnames']">{{colname}}</th>                       
+                    </tr>
+                    <tr>
+                        <td v-for ="col in row">{{col}}</td>
+                    </tr>
+                </template>
             </tbody>
         </table>
     </div>
@@ -99,10 +106,12 @@ const MyComp = {
     ],
     setup(props, context) {
 
-        // テンプレート内で参照する変数
+        // テンプレート内で参照する変数。初期値を設定
         const sql = Vue.ref("")
         const data = Vue.ref({
-            columns:[],rows:[],
+            // ajaxでサーバーから受け取るデータ
+            colnames:[],
+            rows:[],
             info:{
                 'saved_time_cur':"",
                 'saved_time_org':"",
@@ -215,7 +224,6 @@ Vue.createApp({
 
 </script>
 {% endblock %}
-
 
 {% block footer %}
 {% endblock %}
