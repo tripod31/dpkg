@@ -65,16 +65,16 @@ class ImportFromDpkg(ImportDb):
             res = subprocess.Popen(["dpkg", "-l"],stdout=subprocess.PIPE,text=True)
             fo = res.stdout
 
-        lno = 0
+        lno = cnt = 0
         for line in fo:
             lno +=1
-            self.read_package(conn,tbl,line.strip(),lno)
-        print(f"{lno-1}件読み込みました")
+            if lno <=5:
+                continue    #ヘッダスキップ
+            cnt +=1
+            self.read_package(conn,tbl,line.strip())
+        print(f"{cnt}件読み込みました")
 
-    def read_package(self,conn,tbl,line,lno):
-        if lno <= 5:
-            return #ヘッダスキップ
-        
+    def read_package(self,conn,tbl,line):
         m = re.match("(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.+)",line)
         if m:
             status,name,version,arch,desc = m.groups()
@@ -180,7 +180,7 @@ if __name__ == '__main__':
                         help='*.debファイルがあるディレクトリ。オリジナルのパッケージ情報を読み込む')
 
     args=parser.parse_args()
-    print(args)
+    print(f"引数：{vars(args)}")
 
     if args.package_dir:
         print(f"オリジナルのパッケージ情報を{args.package_dir}下の*.debファイルから読み込みます")
